@@ -16,7 +16,8 @@ To this end, we propose RFNet as a meta-learning based neural network for one-sh
     
 # Usage
 
-
+- Please provide setting in config.py
+- Run python main.py for training RF-Net
 
 
 # Data Downloading
