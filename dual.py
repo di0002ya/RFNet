@@ -1,3 +1,7 @@
+#------------
+# Author: Shuya Ding
+# Date: Sep 2020
+#------------
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -7,10 +11,10 @@ import utils as utils
 import torchvision.models as models
 from torch.nn.utils import weight_norm
 
-if cfg.cnn == 'resnet18':
-    cnn = models.resnet18(pretrained=True)
-    cnn = torch.nn.Sequential(*(list(cnn.children())[:-1]))
-    output_dim = 512
+
+cnn = models.resnet18(pretrained=True)
+cnn = torch.nn.Sequential(*(list(cnn.children())[:-1]))
+output_dim = 512
 
 
     
@@ -19,8 +23,7 @@ class Net(nn.Module):
     def __init__(self, k_shots, num_classes, win_len, model = cnn):
         super(Net, self).__init__()
         self.fuse = Fusion()
-        self.model = model
-            
+        self.model = model            
         if cfg.data == 'WIFI':
             self.fc = nn.Sequential(*utils.block('BN', 60 * 2, cfg.hid_dim))  
             self.lstm_time = nn.LSTM(60,cfg.hid_dim//2)
@@ -34,9 +37,7 @@ class Net(nn.Module):
             self.fc = nn.Sequential(*utils.block('BN', 253 * 2, cfg.hid_dim)) 
             self.lstm_time = nn.LSTM(253,cfg.hid_dim//2)
             self.lstm_freq = nn.LSTM(253,cfg.hid_dim//2)              
-
-            
-            
+ 
         self.classifier = nn.Linear(output_dim,cfg.num_class)
         self.attention = weight_norm(BiAttention(
             time_features=cfg.hid_dim//2,
@@ -53,12 +54,9 @@ class Net(nn.Module):
             num_obj=512,
             drop=0.2,
         )        
-        self.cnn1 = torch.nn.Conv2d(2, 3, kernel_size=3, stride=1, padding=1)        
-
-        
+        self.cnn1 = torch.nn.Conv2d(2, 3, kernel_size=3, stride=1, padding=1)             
         self.fc1 = FCNet(cfg.hid_dim//2, cfg.hid_dim//2, 'relu', 0.4)  
         self.fc2 = FCNet(cfg.hid_dim//2, cfg.hid_dim//2, 'relu', 0.4)          
-        
         self.fc3 = FCNet(cfg.hid_dim, cfg.hid_dim, drop = 0.4)          
     def forward(self,x):
         """
@@ -99,7 +97,6 @@ class Net(nn.Module):
 
         # Involve attention 
         time = self.lstm_time(x)[0] #bs, win_len, cfg.hid_dim // 2 
-
         freq = self.lstm_freq(x_absolute)[0]
         
         del x, x_absolute 
@@ -260,10 +257,3 @@ class ApplySingleAttention(nn.Module):
         torch.cuda.empty_cache()
         
         return atten_h_time, atten_h_freq
-
-
-
-
-
-
-

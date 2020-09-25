@@ -1,8 +1,12 @@
+#------------
+# Author: Shuya Ding
+# Date: Sep 2020
+#------------
+
 import torch
 import tqdm
 from torch.autograd import Variable
 import torch.backends.cudnn as cudnn
-
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 import numpy as np
 from torch.utils.tensorboard import SummaryWriter
@@ -10,8 +14,7 @@ from torch.autograd import Variable
 import config as cfg
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 import torch.nn.functional as F
-from matching_networks_cz import MatchingNetwork      
-
+from matching_networks import MatchingNetwork     
 
 class Builder:
     def __init__(self, base_model, cuda, Tensor,  data):
@@ -23,7 +26,7 @@ class Builder:
         self.total_test_batches = cfg.total_test_batches       
         self.data = data
         self.total_iter = 0
-        self.net = MatchingNetwork(base_model,fce = cfg.fce ,use_cuda = self.use_cuda)        
+        self.net = MatchingNetwork(base_model,fce = cfg.fce , additional = cfg.additional_linear, use_cuda = self.use_cuda)        
 
 
         if self.use_cuda:
@@ -70,6 +73,10 @@ class Builder:
         with tqdm.tqdm(total= total_batches) as pbar:
             self.net.train()
             for i in range(total_batches):
+                # support_set_x: bs * (n_classes * k) * 512 * 60
+                # support_set_y: bs * (n_classes * k) 
+                # query_y: bs
+                # query_x: bs * 512 * 60 
                 if data_type =='train':
                     x_support_set, y_support_set, x_target, y_target = self.data.get_train_batch()
                 elif data_type == 'val':
@@ -132,7 +139,6 @@ class Builder:
                 pbar.update(1)
                 total_c_loss += c_loss.item()
                 total_accuracy += acc.item()
-                # self.total_train_iter+=1
 
             total_c_loss = total_c_loss / total_batches
             total_accuracy = total_accuracy / total_batches
@@ -145,7 +151,7 @@ class Builder:
         
     def run_training_epoch(self, total_train_batches):
         
-        # self.run_tuning_epoch(total_train_batches)
+
         """
         Run the training epoch
         :param total_train_batches: Number of batches to train on
@@ -153,7 +159,6 @@ class Builder:
         """
         total_c_loss = 0.0
         total_accuracy = 0.0
-        # optimizer = self._create_optimizer(self.matchNet, self.lr)
         
         
         # ONLY FINE-TUNING LAST LAYERS
@@ -189,10 +194,6 @@ class Builder:
                 y_support_set = y_support_set.unsqueeze(2)
                 sequence_length = y_support_set.size()[1]
                 batch_size = y_support_set.size()[0]
-#                 if cfg.reshape_to_scene:
-#                     x_target = torch.cat([x_target] * cfg.k_shots)
-#                     y_target = torch.cat([y_target] * cfg.k_shots)                    
-
                 y_support_set_one_hot = Variable(
                 torch.zeros(batch_size, sequence_length, self.data.n_classes).scatter_(2,
                                                                                         y_support_set.data,
@@ -260,15 +261,9 @@ class Builder:
                         
                     x_target = Variable(x_target).float()
                     y_target = Variable(y_target, requires_grad=False).squeeze().long()
-
-                    # convert to one hot encoding
                     y_support_set = y_support_set.unsqueeze(2)
                     sequence_length = y_support_set.size()[1]
                     batch_size = y_support_set.size()[0]
-    #                 if cfg.reshape_to_scene:
-    #                     x_target = torch.cat([x_target] * cfg.k_shots)
-    #                     y_target = torch.cat([y_target] * cfg.k_shots)                    
-
                     y_support_set_one_hot = Variable(
                     torch.zeros(batch_size, sequence_length, self.data.n_classes).scatter_(2,
                                                                                             y_support_set.data,
@@ -288,7 +283,6 @@ class Builder:
                     pbar.update(1)
                     total_c_loss += c_loss.item()
                     total_accuracy += acc.item()
-                    # self.total_train_iter+=1
 
                 total_c_loss = total_c_loss / total_val_batches
                 total_accuracy = total_accuracy / total_val_batches
@@ -303,16 +297,12 @@ class Builder:
         """
         total_c_loss = 0.0
         total_accuracy = 0.0
-        # optimizer = self._create_optimizer(self.matchNet, self.lr)
 
         with tqdm.tqdm(total= total_test_batches) as pbar:
             with torch.no_grad():
                 self.net.eval()
                 for i in range(total_test_batches):
-                    # support_set_x: bs * (n_classes * k) * 512 * 60
-                    # support_set_y: bs * (n_classes * k) 
-                    # query_y: bs
-                    # query_x: bs * 512 * 60 
+
 
                     x_support_set, y_support_set, x_target, y_target = self.data.get_test_batch()
                     x_support_set = Variable(torch.from_numpy(x_support_set)).float()
@@ -331,10 +321,6 @@ class Builder:
                     y_support_set = y_support_set.unsqueeze(2)
                     sequence_length = y_support_set.size()[1]
                     batch_size = y_support_set.size()[0]
-    #                 if cfg.reshape_to_scene:
-    #                     x_target = torch.cat([x_target] * cfg.k_shots)
-    #                     y_target = torch.cat([y_target] * cfg.k_shots)                    
-
                     y_support_set_one_hot = Variable(
                     torch.zeros(batch_size, sequence_length, self.data.n_classes).scatter_(2,
                                                                                             y_support_set.data,
@@ -354,7 +340,6 @@ class Builder:
                     pbar.update(1)
                     total_c_loss += c_loss.item()
                     total_accuracy += acc.item()
-                    # self.total_train_iter+=1
 
                 total_c_loss = total_c_loss / total_test_batches
                 total_accuracy = total_accuracy / total_test_batches
