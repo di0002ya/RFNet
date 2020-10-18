@@ -1,7 +1,7 @@
-# RF-Net: A Unified Meta-Learning Framework for RF-enabledOne-Shot Human Activity Recognition
+# RF-Net: A Unified Meta-Learning Framework for RF-enabled One-Shot Human Activity Recognition
 
 This repo contains the code and data of the following paper:
->**RF-Net: A Unified Meta-Learning Framework for RF-enabledOne-Shot Human Activity Recognition**, *Shuya Ding, Zhe Chen, Tianyue Zheng, Jun Luo*, Sensys2020 [[pdf]](link to be added)
+>**RF-Net: A Unified Meta-Learning Framework for RF-enabled One-Shot Human Activity Recognition**, *Shuya Ding, Zhe Chen, Tianyue Zheng, Jun Luo*, Sensys2020 [[pdf]](link to be added)
 
 # Overview 
 <p align="center"><img width="60%" src="RFNet.jpg"/></p> 
