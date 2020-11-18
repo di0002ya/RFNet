@@ -21,9 +21,9 @@ To this end, we propose RFNet as a meta-learning based neural network for one-sh
 
 
 # Data Downloading
+- https://entuedu-my.sharepoint.com/:u:/g/personal/lamourdsy_staff_main_ntu_edu_sg/EQZRd2JtIqdLmh1zNDo2j6UBAEpvLZ93YcTYuprCkFHxXA?e=NnI6ti
 
-https://entuedu-my.sharepoint.com/:u:/g/personal/lamourdsy_staff_main_ntu_edu_sg/EQZRd2JtIqdLmh1zNDo2j6UBeeCc3KKbCBDPzoZOeGDRXw?e=Ym31OG
-https://entuedu-my.sharepoint.com/:u:/g/personal/lamourdsy_staff_main_ntu_edu_sg/EVmM8HaNosZDrZswqhjghLkB3HADyB3ZzAh61r17LtDV5w?e=P989Zb
+- https://entuedu-my.sharepoint.com/:u:/g/personal/lamourdsy_staff_main_ntu_edu_sg/EVmM8HaNosZDrZswqhjghLkB3HADyB3ZzAh61r17LtDV5w?e=P989Zb
 
 
 # Citing
